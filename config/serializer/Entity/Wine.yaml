@@ -1,0 +1,9 @@
+App\Entity\Wine:
+  attributes:
+    id:
+      groups: ['wine']
+    name:
+      groups: ['wine']
+    year:
+      groups: ['wine']
+      
