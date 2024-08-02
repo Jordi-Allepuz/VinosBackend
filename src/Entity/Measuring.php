@@ -19,20 +19,22 @@ class Measuring
     #[ORM\Column(length: 255)]
     private ?string $colour = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $temperature = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $alcoholContent = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $ph = null;
+    #[ORM\Column]
+    private ?int $temperature = null;
 
     #[ORM\Column]
-    private ?int $idSensor = null;
+    private ?int $ph = null;
 
     #[ORM\Column]
-    private ?int $idWine = null;
+    private ?int $alcoholContent = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Sensor $idSensor = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Wine $idWine = null;
 
     public function getId(): ?int
     {
@@ -63,60 +65,60 @@ class Measuring
         return $this;
     }
 
-    public function getTemperature(): ?string
+    public function getTemperature(): ?int
     {
         return $this->temperature;
     }
 
-    public function setTemperature(string $temperature): static
+    public function setTemperature(int $temperature): static
     {
         $this->temperature = $temperature;
 
         return $this;
     }
 
-    public function getAlcoholContent(): ?string
-    {
-        return $this->alcoholContent;
-    }
-
-    public function setAlcoholContent(string $alcoholContent): static
-    {
-        $this->alcoholContent = $alcoholContent;
-
-        return $this;
-    }
-
-    public function getPh(): ?string
+    public function getPh(): ?int
     {
         return $this->ph;
     }
 
-    public function setPh(string $ph): static
+    public function setPh(int $ph): static
     {
         $this->ph = $ph;
 
         return $this;
     }
 
-    public function getIdSensor(): ?int
+    public function getAlcoholContent(): ?int
+    {
+        return $this->alcoholContent;
+    }
+
+    public function setAlcoholContent(int $alcoholContent): static
+    {
+        $this->alcoholContent = $alcoholContent;
+
+        return $this;
+    }
+
+    public function getIdSensor(): ?Sensor
     {
         return $this->idSensor;
     }
 
-    public function setIdSensor(int $idSensor): static
+    public function setIdSensor(?Sensor $idSensor): static
     {
         $this->idSensor = $idSensor;
 
         return $this;
     }
 
-    public function getIdWine(): ?int
+    public function getIdWine(): ?Wine
     {
         return $this->idWine;
     }
 
-    public function setIdWine(int $idWine): static
+    public function setIdWine(?Wine $idWine): static
     {
         $this->idWine = $idWine;
 

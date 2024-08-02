@@ -9,7 +9,6 @@ App\Form\Model\WineDto:
             maxMessage: 'The name cannot be longer than {{ limit }} characters'
       year:
         - NotBlank: ~
-        - Type: integer
         - Range:
             min: 1900
             max: 2024
