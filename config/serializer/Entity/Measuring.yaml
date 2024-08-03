@@ -1,0 +1,19 @@
+App\Entity\Measuring:
+  attributes:
+    id:
+      groups: ['measuring']
+    idSensor:
+      groups: ['measuring']
+    idWine:
+      groups: ['measuring']
+    colour:
+      groups: ['measuring']
+    temperature:
+      groups: ['measuring']
+    ph:
+      groups: ['measuring']
+    alcoholContent:
+      groups: ['measuring']
+    year:
+      groups: ['measuring']
+

@@ -1,0 +1,51 @@
+App\Form\Model\MeasuringDto:
+    properties:
+      idSensor:
+        - NotBlank: ~
+        - Length:
+            min: 1
+            max: 1000
+            minMessage: 'The id Sensor must be at least {{ limit }} characters long'
+            maxMessage: 'The id Sensor cannot be longer than {{ limit }} characters'
+      idWine:
+        - NotBlank: ~
+        - Range:
+            min: 1
+            max: 1000
+            minMessage: 'The id Wine must be at least {{ limit }}'
+            maxMessage: 'The id Wine cannot be greater than {{ limit }}'
+      colour:
+        - NotBlank: ~
+        - Range:
+            min: 3
+            max: 255
+            minMessage: 'The colour must be at least {{ limit }}'
+            maxMessage: 'The colour cannot be greater than {{ limit }}'
+      temperature:
+        - NotBlank: ~
+        - Range:
+            min: 0
+            max: 20
+            minMessage: 'The temperature must be at least {{ limit }}'
+            maxMessage: 'The temperature cannot be greater than {{ limit }}'
+      ph:
+        - NotBlank: ~
+        - Range:
+            min: 0
+            max: 14
+            minMessage: 'The year must be at least {{ limit }}'
+            maxMessage: 'The year cannot be greater than {{ limit }}'
+      alcoholContent:
+        - NotBlank: ~
+        - Range:
+            min: 0
+            max: 20
+            minMessage: 'The alcohol Content must be at least {{ limit }}'
+            maxMessage: 'The alcohol Content cannot be greater than {{ limit }}'
+      year:
+        - NotBlank: ~
+        - Range:
+            min: 1900
+            max: 2024
+            minMessage: 'The year must be at least {{ limit }}'
+            maxMessage: 'The year cannot be greater than {{ limit }}'
