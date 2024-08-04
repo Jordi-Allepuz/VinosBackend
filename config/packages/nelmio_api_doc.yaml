@@ -1,0 +1,15 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: API WINES
+            description: Documentation of the API for the WINES project
+            version: 1.0.0
+    areas: # to filter documented areas
+        default:
+            path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+        internal:
+            with_annotation : true
+        public:
+            with_annotation : true
+        

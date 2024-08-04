@@ -14,9 +14,12 @@ use FOS\RestBundle\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation as Nelmio;
+use OpenApi\Attributes as OA;
 
 /**
  * @Rest\Route("/api")
+ * @Nelmio\Areas({"internal"})
  */
 class WineController extends AbstractFOSRestController
 {

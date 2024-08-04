@@ -35,4 +35,14 @@ class Sensor
 
         return $this;
     }
+
+    public function patch (array $data): static
+    {
+       if (array_key_exists('name', $data)) {
+           $this->setName($data['name']);
+       }
+
+        return $this;
+    }
+
 }

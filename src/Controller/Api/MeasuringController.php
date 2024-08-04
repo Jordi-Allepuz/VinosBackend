@@ -14,9 +14,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\SensorRepository;
 use App\Repository\WineRepository;
+use Nelmio\ApiDocBundle\Annotation as Nelmio;
+use OpenApi\Attributes as OA;
 
 /**
  * @Rest\Route("/api")
+ * @Nelmio\Areas({"internal"})
  */
 class MeasuringController extends AbstractFOSRestController
 {
@@ -85,46 +88,89 @@ class MeasuringController extends AbstractFOSRestController
     }
 
 
-//     /**
-//      * @Rest\Put(path="/measurings/{id}", requirements={"id"="\d+"})
-//      * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
-//      */
-//     public function putMeasuring(EntityManagerInterface $em, MeasuringRepository $measuringRepository, Request $request, int $id)
-//    {
-//         $measuring = $measuringRepository->find($id);
-//         if (!$measuring) {
-//             throw $this->createNotFoundException('Measuring not found');
-//         }
+    /**
+     * @Rest\Put(path="/measurings/{id}", requirements={"id"="\d+"})
+     * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
+     */
+    public function putMeasuring(EntityManagerInterface $em, MeasuringRepository $measuringRepository,WineRepository $wineRepository, SensorRepository $sensorRepository  ,Request $request, int $id)
+   {
+    $measuring = $measuringRepository->find($id);
+    if (!$measuring) {
+        throw $this->createNotFoundException('Measuring not found');
+    }
 
-//         $measuringDto = new MeasuringDto();
-//         $measuringDto->idSensor = $measuring->getIdSensor();
-//         $measuringDto->idWine = $measuring->getYear();
-//         $measuringDto->temperature = $measuring->getTemperature();
-//         $measuringDto->ph = $measuring->getPh();
-//         $measuringDto->colour = $measuring->getColour();
-//         $measuringDto->alcoholContent = $measuring->getAlcoholContent();
-//         $measuringDto->year = $measuring->getYear();
-//         $form = $this->createForm(MeasuringFormType::class, $measuringDto);
-//         $form->handleRequest($request);
+    $content = json_decode($request->getContent(), true);
+    $measuringDto = new MeasuringDto();
 
-//         if(!$form->isSubmitted()) {
-//             return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-//         }
-//         if ($form->isValid()) {
-//             $measuring = new Measuring();
-//             $measuring->setIdSensor($measuringDto->idSensor);
-//             $measuring->setIdWine($measuringDto->idWine);
-//             $measuring->setTemperature($measuringDto->temperature);
-//             $measuring->setPh($measuringDto->ph);
-//             $measuring->setColour($measuringDto->colour);
-//             $measuring->setAlcoholContent($measuringDto->alcoholContent);
-//             $measuring->setYear($measuringDto->year);
-//             $em->persist($measuring);
-//             $em->flush();
-//             return $measuring;
-//         }
-//         return $form;
-//     }
+    $measuringDto = new MeasuringDto();
+    $measuringDto->idSensor = $measuring->getIdSensor();
+    $measuringDto->idWine = $measuring->getYear();
+    $measuringDto->temperature = $measuring->getTemperature();
+    $measuringDto->ph = $measuring->getPh();
+    $measuringDto->colour = $measuring->getColour();
+    $measuringDto->alcoholContent = $measuring->getAlcoholContent();
+    $measuringDto->year = $measuring->getYear();
+    
+    $form = $this->createForm(MeasuringFormType::class, $measuringDto);
+    $form->submit($request->request->all(), false);
+
+    if(!$form->isSubmitted()) {
+        return new Response('Bad request', Response::HTTP_BAD_REQUEST);
+    }
+    if ($form->isValid()) {
+        if ($measuringDto->idWine !== null) {
+            $wine = $wineRepository->find($measuringDto->idWine);
+            if (!$wine) {
+                throw $this->createNotFoundException('Wine not found');
+            }
+            $measuring->setIdWine($wine);
+        }
+        if ($measuringDto->idSensor !== null) {
+            $measuring->setIdSensor($measuringDto->idSensor);
+        }
+        if ($measuringDto->temperature !== null) {
+            $measuring->setTemperature($measuringDto->temperature);
+        }
+        if ($measuringDto->ph !== null) {
+            $measuring->setPh($measuringDto->ph);
+        }
+        if ($measuringDto->colour !== null) {
+            $measuring->setColour($measuringDto->colour);
+        }
+        if ($measuringDto->alcoholContent !== null) {
+            $measuring->setAlcoholContent($measuringDto->alcoholContent);
+        }
+        if ($measuringDto->year !== null) {
+            $measuring->setYear($measuringDto->year);
+        }
+        $em->persist($measuring);
+        $em->flush();
+        return $measuring;
+    }
+    return $form;
+    }
+
+
+    /**
+     * @Rest\Patch(path="/measurings/{id}", requirements={"id"="\d+"})
+     * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
+     */
+    public function patchMeasuring(EntityManagerInterface $em, MeasuringRepository $measuringRepository, Request $request, int $id)
+    {
+        $measuring = $measuringRepository->find($id);
+        if (!$measuring) {
+            throw $this->createNotFoundException('Measuring not found');
+        }
+
+        $content = json_decode($request->getContent(), true);
+        $measuring->patch($content);
+
+        $em->persist($measuring);
+        $em->flush();
+        return $measuring;
+
+    }
+
 
 
     /**

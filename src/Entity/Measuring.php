@@ -133,4 +133,31 @@ class Measuring
 
         return $this;
     }
+
+    public function patch(array $data): static
+    {
+        if (array_key_exists('year', $data)) {
+            $this->setYear($data['year']);
+        }
+        if (array_key_exists('colour', $data)) {
+            $this->setColour($data['colour']);
+        }
+        if (array_key_exists('temperature', $data)) {
+            $this->setTemperature($data['temperature']);
+        }
+        if (array_key_exists('ph', $data)) {
+            $this->setPh($data['ph']);
+        }
+        if (array_key_exists('alcoholContent', $data)) {
+            $this->setAlcoholContent($data['alcoholContent']);
+        }
+        if (array_key_exists('idSensor', $data)) {
+            $this->setIdSensor($data['idSensor']);
+        }
+        if (array_key_exists('idWine', $data)) {
+            $this->setIdWine($data['idWine']);
+        }
+
+        return $this;
+    }
 }

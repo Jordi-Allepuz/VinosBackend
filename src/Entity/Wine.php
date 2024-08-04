@@ -102,7 +102,7 @@ class Wine
             $this->setYear($data['year']);
         }
         
-
         return $this;
     }
+    
 }
