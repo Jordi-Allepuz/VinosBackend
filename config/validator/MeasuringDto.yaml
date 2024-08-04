@@ -2,7 +2,7 @@ App\Form\Model\MeasuringDto:
     properties:
       idSensor:
         - NotBlank: ~
-        - Length:
+        - Range:
             min: 1
             max: 1000
             minMessage: 'The id Sensor must be at least {{ limit }} characters long'
@@ -16,7 +16,7 @@ App\Form\Model\MeasuringDto:
             maxMessage: 'The id Wine cannot be greater than {{ limit }}'
       colour:
         - NotBlank: ~
-        - Range:
+        - Length:
             min: 3
             max: 255
             minMessage: 'The colour must be at least {{ limit }}'

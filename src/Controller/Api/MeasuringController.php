@@ -12,6 +12,8 @@ use App\Form\Model\MeasuringDto;
 use App\Form\Type\MeasuringFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Repository\SensorRepository;
+use App\Repository\WineRepository;
 
 /**
  * @Rest\Route("/api")
@@ -43,7 +45,7 @@ class MeasuringController extends AbstractFOSRestController
     * @Rest\Post(path="/measurings")
     * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
     */
-    public function postmeasuring(EntityManagerInterface $em, Request $request)
+    public function postmeasuring(EntityManagerInterface $em, Request $request, SensorRepository $sensorRepository, WineRepository $wineRepository)
     {
         $measuringDto = new MeasuringDto();
         $form = $this->createForm(MeasuringFormType::class, $measuringDto);
@@ -54,13 +56,27 @@ class MeasuringController extends AbstractFOSRestController
         }
         if ($form->isValid()) {
             $measuring = new Measuring();
-            $measuring->setIdSensor($measuringDto->idSensor);
-            $measuring->setIdWine($measuringDto->idWine);
+
+            $sensor = $sensorRepository->find($measuringDto->idSensor);
+            if (!$sensor) {
+                return new Response('Sensor not found', Response::HTTP_NOT_FOUND);
+            }
+            $measuring->setIdSensor($sensor);
+
+            
+            $wine = $wineRepository->find($measuringDto->idWine);
+            if (!$wine) {
+                return new Response('Wine not found', Response::HTTP_NOT_FOUND);
+            }
+            $measuring->setIdWine($wine);
+
+
             $measuring->setTemperature($measuringDto->temperature);
             $measuring->setPh($measuringDto->ph);
             $measuring->setColour($measuringDto->colour);
             $measuring->setAlcoholContent($measuringDto->alcoholContent);
             $measuring->setYear($measuringDto->year);
+
             $em->persist($measuring);
             $em->flush();
             return $measuring;

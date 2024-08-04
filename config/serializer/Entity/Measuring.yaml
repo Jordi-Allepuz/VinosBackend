@@ -5,7 +5,7 @@ App\Entity\Measuring:
     idSensor:
       groups: ['measuring']
     idWine:
-      groups: ['measuring']
+      groups: ['measuring', 'wine']
     colour:
       groups: ['measuring']
     temperature:
@@ -16,4 +16,6 @@ App\Entity\Measuring:
       groups: ['measuring']
     year:
       groups: ['measuring']
+
+
 

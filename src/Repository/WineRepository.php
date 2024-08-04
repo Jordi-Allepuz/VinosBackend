@@ -21,6 +21,21 @@ class WineRepository extends ServiceEntityRepository
         parent::__construct($registry, Wine::class);
     }
 
+
+
+     /**
+     * Find all wines ordered by name.
+     *
+     * @return Wine[]
+     */
+    public function findAllOrderedByName(): array
+    {
+        return $this->createQueryBuilder('w')
+            ->orderBy('w.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Wine[] Returns an array of Wine objects
 //     */

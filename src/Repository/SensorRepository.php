@@ -21,6 +21,22 @@ class SensorRepository extends ServiceEntityRepository
         parent::__construct($registry, Sensor::class);
     }
 
+
+
+    /**
+     * Find all sensors ordered by name.
+     *
+     * @return Wine[]
+     */
+    public function findAllOrderedByName(): array
+    {
+        return $this->createQueryBuilder('w')
+            ->orderBy('w.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
 //    /**
 //     * @return Sensor[] Returns an array of Sensor objects
 //     */

@@ -25,7 +25,7 @@ class SensorController extends AbstractFOSRestController
     */
     public function getSensors(SensorRepository $sensorRepository)
     {
-        return $sensorRepository->findAll();
+        return $sensorRepository->findAllOrderedByName();
     }
 
 

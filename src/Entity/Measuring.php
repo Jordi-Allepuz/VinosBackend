@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\MeasuringRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: MeasuringRepository::class)]
 class Measuring
@@ -11,29 +12,37 @@ class Measuring
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['measuring', 'wine'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['measuring', 'wine'])]
     private ?int $year = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['measuring', 'wine'])]
     private ?string $colour = null;
 
     #[ORM\Column]
+    #[Groups(['measuring', 'wine'])]
     private ?int $temperature = null;
 
     #[ORM\Column]
+    #[Groups(['measuring', 'wine'])]
     private ?int $ph = null;
 
     #[ORM\Column]
+    #[Groups(['measuring', 'wine'])]
     private ?int $alcoholContent = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['measuring', 'wine'])]
     private ?Sensor $idSensor = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['measuring', 'wine'])]
     private ?Wine $idWine = null;
 
     public function getId(): ?int

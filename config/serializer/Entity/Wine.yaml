@@ -6,4 +6,6 @@ App\Entity\Wine:
       groups: ['wine']
     year:
       groups: ['wine']
+    measurings:
+      groups: ['wine']
       
