@@ -10,7 +10,11 @@ use App\Service\UserService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Nelmio\ApiDocBundle\Annotation as Nelmio;
-
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use App\Entity\User;
+use App\Form\Type\UserFormType;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Rest\Route("/api")
@@ -26,6 +30,46 @@ class UserController extends AbstractFOSRestController
     {
         $this->userService = $userService;
     }
+
+
+
+    // /** 
+    // * @Rest\Post(path="/users")
+    // * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
+    // */
+    // public function register(Request $request, UserPasswordEncoderInterface $encoder, EntityManagerInterface $em)
+    // {
+	// 	$user = new User();
+	// 	$form = $this->createForm(UserFormType::class, $user);
+	// 	$form->handleRequest($request);
+		
+	// 	if (!$form->isSubmitted()) {
+    //         return new Response('Bad request', Response::HTTP_BAD_REQUEST);
+    //     }
+    //     if ($form->isValid()) {
+	// 		$user->setRole('ROLE_USER');
+	// 		$encoded = $encoder->encodePassword($user, $user->getPassword());
+	// 		$user->setPassword($encoded);
+			
+	// 		$em->persist($user);
+	// 		$em->flush();
+			
+	// 		return $user;
+	// 	}
+		
+    //     return $form;
+    // }
+	
+	// public function login(AuthenticationUtils $autenticationUtils){
+	// 	$error = $autenticationUtils->getLastAuthenticationError();
+		
+	// 	$lastUsername = $autenticationUtils->getLastUsername();
+		
+	// 	return $this->render('user/login.html.twig', array(
+	// 		'error' => $error,
+	// 		'last_username' => $lastUsername
+	// 	));
+	// }
 
 
 

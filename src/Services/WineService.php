@@ -20,6 +20,7 @@ class WineService
     private $formFactory;
     private $serializer;
 
+
     public function __construct(EntityManagerInterface $em, WineRepository $wineRepository, FormFactoryInterface $formFactory, SerializerInterface $serializer)
     {
         $this->em = $em;
@@ -28,6 +29,7 @@ class WineService
         $this->serializer = $serializer;
     }
 
+    
     public function getAllWines(): array
     {
         return $this->wineRepository->findAllOrderedByName();

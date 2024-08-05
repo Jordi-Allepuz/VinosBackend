@@ -21,6 +21,7 @@ App\Form\Model\UserDto:
                 max: 255
                 minMessage: 'The email must be at least {{ limit }} characters long'
                 maxMessage: 'The email cannot be longer than {{ limit }} characters'
+        password:
             - NotBlank: ~
             - Length:
                 min: 6

@@ -4,10 +4,13 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements UserInterface
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -24,6 +27,13 @@ class User
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="role", type="string", length=50, nullable=true)
+     */
+    private $role;
 
     public function getId(): ?int
     {
@@ -78,6 +88,19 @@ class User
         return $this;
     }
 
+
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(?string $role): self
+    {
+        $this->role = $role;
+
+        return $this;
+    }
+
     public function patch (array $data): static
     {
         if (array_key_exists('name', $data)) {
@@ -95,4 +118,23 @@ class User
 
         return $this;
     }
+
+
+    public function eraseCredentials(){}
+
+
+    public function getSalt(){
+        return null;
+    }
+
+    public function getRoles(): array
+    {
+        return array('ROLE_USER');
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return '';
+    }
+
 }
