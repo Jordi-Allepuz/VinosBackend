@@ -77,4 +77,22 @@ class User
 
         return $this;
     }
+
+    public function patch (array $data): static
+    {
+        if (array_key_exists('name', $data)) {
+            $this->setName($data['name']);
+        }
+        if (array_key_exists('lastnames', $data)) {
+            $this->setLastnames($data['lastnames']);
+        }
+        if (array_key_exists('email', $data)) {
+            $this->setEmail($data['email']);
+        }
+        if (array_key_exists('password', $data)) {
+            $this->setPassword($data['password']);
+        }
+
+        return $this;
+    }
 }
