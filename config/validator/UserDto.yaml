@@ -16,10 +16,11 @@ App\Form\Model\UserDto:
                 maxMessage: 'The lastnames cannot be longer than {{ limit }} characters'
         email:
             - NotBlank: ~
-            - Email:
-                mode: strict
-                message: 'The email "{{ value }}" is not a valid email.'
-        password:
+            - Length:
+                min: 3
+                max: 255
+                minMessage: 'The email must be at least {{ limit }} characters long'
+                maxMessage: 'The email cannot be longer than {{ limit }} characters'
             - NotBlank: ~
             - Length:
                 min: 6

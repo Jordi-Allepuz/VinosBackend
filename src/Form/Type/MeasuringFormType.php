@@ -35,7 +35,8 @@ class MeasuringFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => MeasuringDto::class
+            'data_class' => MeasuringDto::class,
+            'csrf_protection' => false
         ]);
     }
 

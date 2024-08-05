@@ -33,7 +33,8 @@ class WineFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => WineDto::class
+            'data_class' => WineDto::class,
+            'csrf_protection' => false
         ]);
     }
 

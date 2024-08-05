@@ -27,7 +27,8 @@ class SensorFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => SensorDto::class
+            'data_class' => SensorDto::class,
+            'csrf_protection' => false
         ]);
     }
 

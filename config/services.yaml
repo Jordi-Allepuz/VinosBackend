@@ -39,7 +39,13 @@ services:
             $wineRepository: '@App\Repository\WineRepository'
             $formFactory: '@form.factory'
 
-
+    
+    App\Service\UserService:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $userRepository: '@App\Repository\UserRepository'
+            $formFactory: '@form.factory'
+            $serializer: '@serializer'
 
 
     App\:
