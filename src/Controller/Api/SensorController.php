@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use App\Entity\Sensor;
 use App\Form\Model\SensorDto;
 use App\Form\Type\SensorFormType;
+use App\Service\SensorService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Nelmio\ApiDocBundle\Annotation as Nelmio;
@@ -22,13 +23,22 @@ use OpenApi\Attributes as OA;
 class SensorController extends AbstractFOSRestController
 {
 
+
+    private $sensorService;
+
+    public function __construct(SensorService $sensorService)
+    {
+        $this->sensorService = $sensorService;
+    }
+
     /**
     * @Rest\Get(path="/sensors")
     * @Rest\View(serializerGroups={"sensor"}, serializerEnableMaxDepthChecks=true)
     */
-    public function getSensors(SensorRepository $sensorRepository)
+    public function getSensors()
     {
-        return $sensorRepository->findAllOrderedByName();
+        $sensors = $this->sensorService->getAllSensors();
+        return $this->json($sensors, Response::HTTP_OK, [], ['groups' => ['sensor']]);
     }
 
 
@@ -36,9 +46,15 @@ class SensorController extends AbstractFOSRestController
     * @Rest\Get(path="/sensors/{id}", requirements={"id"="\d+"}) 
     * @Rest\View(serializerGroups={"sensor"}, serializerEnableMaxDepthChecks=true)
     */
-    public function getSensorById(SensorRepository $sensorRepository, int $id)
+    public function getSensorById(int $id)
     {
-        return $sensorRepository->find($id);
+        $sensor = $this->sensorService->getSensorById($id);
+
+        if (!$sensor) {
+            throw $this->createNotFoundException('Sensor not found');
+        }
+    
+        return $this->json($sensor, Response::HTTP_OK, [], ['groups' => ['sensor']]);
     }
 
 
@@ -46,23 +62,9 @@ class SensorController extends AbstractFOSRestController
     * @Rest\Post(path="/sensors")
     * @Rest\View(serializerGroups={"sensor"}, serializerEnableMaxDepthChecks=true)
     */
-    public function postSensor(EntityManagerInterface $em, Request $request)
+    public function postSensor( Request $request)
     {
-        $sensorDto = new SensorDto();
-        $form = $this->createForm(SensorFormType::class, $sensorDto);
-        $form->handleRequest($request);
-        
-        if(!$form->isSubmitted()) {
-            return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-        }
-        if ($form->isValid()) {
-            $sensor = new Sensor();
-            $sensor->setName($sensorDto->name);
-            $em->persist($sensor);
-            $em->flush();
-            return $sensor;
-        }
-        return $form;
+        return $this->sensorService->createSensor($request);
     }
 
 
@@ -70,34 +72,9 @@ class SensorController extends AbstractFOSRestController
      * @Rest\Put(path="/sensors/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"sensor"}, serializerEnableMaxDepthChecks=true)
      */
-    public function putSensor(EntityManagerInterface $em, SensorRepository $sensorRepository, Request $request, int $id)
+    public function putSensor(Request $request, int $id)
    {
-        $sensor = $sensorRepository->find($id);
-        if (!$sensor) {
-            throw $this->createNotFoundException('Sensor not found');
-        }
-
-        $content = json_decode($request->getContent(), true);
-        $sensorDto = new SensorDto();
-
-        $sensorDto->name = $sensor->getName();
-
-        $form = $this->createForm(SensorFormType::class, $sensorDto);
-        $form->submit($content, false);
-
-        if(!$form->isSubmitted()) {
-            return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($form->isValid()) {
-            if ($sensorDto->name !== null) {
-                $sensor->setName($sensorDto->name);
-            }
-            $em->persist($sensor);
-            $em->flush();
-            return $sensor;
-        }
-        return $form;
+        return $this->sensorService->updateSensor($request, $id);
     }
 
 
@@ -105,19 +82,9 @@ class SensorController extends AbstractFOSRestController
      * @Rest\Patch(path="/sensors/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"sensor"}, serializerEnableMaxDepthChecks=true)
      */
-    public function pathSensor (int $id, Request $request, EntityManagerInterface $em, SensorRepository $sensorRepository)
+    public function pathSensor (int $id, Request $request)
     {
-        $sensor = $sensorRepository->find($id);
-        if (!$sensor) {
-            throw $this->createNotFoundException('Sensor not found');
-        }
-
-        $content = json_decode($request->getContent(), true);
-        $sensor->patch($content);
-
-        $em->persist($sensor);
-        $em->flush();
-        return $sensor;
+        return $this->sensorService->patchSensor($request, $id);
     }
 
 
@@ -125,14 +92,9 @@ class SensorController extends AbstractFOSRestController
      * @Rest\Delete(path="/sensors/{id}" , requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"sensor"}, serializerEnableMaxDepthChecks=true)
      */
-    public function deleteSensor(EntityManagerInterface $em, SensorRepository $sensorRepository, int $id)
+    public function deleteSensor(int $id)
     {
-        $sensor = $sensorRepository->find($id);
-        if ($sensor) {
-            $em->remove($sensor);
-            $em->flush();
-        }
-        return $sensor;
+        return $this->sensorService->deleteSensor($id);
     }
 
 

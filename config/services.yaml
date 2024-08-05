@@ -16,6 +16,30 @@ services:
 
     App\Serializer\WineNormalizer:
         tags: [serializer.normalizer]
+        
+    App\Service\WineService:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $wineRepository: '@App\Repository\WineRepository'
+            $formFactory: '@form.factory'
+            $serializer: '@serializer'
+
+    App\Service\SensorService:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $sensorRepository: '@App\Repository\SensorRepository'
+            $formFactory: '@form.factory'
+
+
+    App\Service\MeasuringService:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $measuringRepository: '@App\Repository\MeasuringRepository'
+            $sensorRepository: '@App\Repository\SensorRepository'
+            $wineRepository: '@App\Repository\WineRepository'
+            $formFactory: '@form.factory'
+
+
 
 
     App\:

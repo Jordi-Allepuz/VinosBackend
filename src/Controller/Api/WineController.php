@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use App\Entity\Wine;
 use App\Form\Model\WineDto;
 use App\Form\Type\WineFormType;
+use App\Service\WineService;
 use FOS\RestBundle\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,17 +25,24 @@ use OpenApi\Attributes as OA;
 class WineController extends AbstractFOSRestController
 {
 
+
+    private $wineService;
+
+    public function __construct(WineService $wineService)
+    {
+        $this->wineService = $wineService;
+    }
+
+
+
     /**
     * @Rest\Get(path="/wines")
     * @Rest\View(serializerGroups={"wine"}, serializerEnableMaxDepthChecks=true)
     */
-    public function getWines(WineRepository $wineRepository, Request $request, SerializerInterface $serializer)
+    public function getWines()
     {
-        $wines= $wineRepository->findAllOrderedByName();
-
-        $serializerWines= $serializer->serialize($wines, 'json', ['groups' => ['wine']]);
-
-        return new Response($serializerWines, Response::HTTP_OK, [], true);
+        $wines = $this->wineService->getAllWines();
+        return $this->json($wines, Response::HTTP_OK, [], ['groups' => ['wine']]);
     }
 
 
@@ -42,17 +50,15 @@ class WineController extends AbstractFOSRestController
     * @Rest\Get(path="/wines/{id}", requirements={"id"="\d+"}) 
     * @Rest\View(serializerGroups={"wine"}, serializerEnableMaxDepthChecks=true)
     */
-    public function getWineById(WineRepository $wineRepository, int $id, SerializerInterface $serializer)
+    public function getWineById(int $id)
     {
-        $wine = $wineRepository->find($id);
+        $wine = $this->wineService->getWineById($id);
 
         if (!$wine) {
             throw $this->createNotFoundException('Wine not found');
         }
     
-        $serializedWine = $serializer->serialize($wine, 'json', ['groups' => ['wine']]);
-    
-        return new Response($serializedWine, Response::HTTP_OK, [], true); 
+        return $this->json($wine, Response::HTTP_OK, [], ['groups' => ['wine']]);
     }
 
 
@@ -60,24 +66,9 @@ class WineController extends AbstractFOSRestController
     * @Rest\Post(path="/wines")
     * @Rest\View(serializerGroups={"wine"}, serializerEnableMaxDepthChecks=true)
     */
-    public function postWine(EntityManagerInterface $em, Request $request)
+    public function postWine(Request $request)
     {
-        $wineDto = new WineDto();
-        $form = $this->createForm(WineFormType::class, $wineDto);
-        $form->handleRequest($request);
-        
-        if(!$form->isSubmitted()) {
-            return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-        }
-        if ($form->isValid()) {
-            $wine = new Wine();
-            $wine->setName($wineDto->name);
-            $wine->setYear($wineDto->year);
-            $em->persist($wine);
-            $em->flush();
-            return $wine;
-        }
-        return $form;
+        return $this->wineService->createWine($request);
     }
 
 
@@ -85,39 +76,9 @@ class WineController extends AbstractFOSRestController
      * @Rest\Put(path="/wines/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"wine"}, serializerEnableMaxDepthChecks=true)
      */
-    public function putWine(EntityManagerInterface $em, WineRepository $wineRepository, Request $request, int $id)
+    public function putWine( Request $request, int $id)
    {
-        $wine = $wineRepository->find($id);
-        if (!$wine) {
-            throw $this->createNotFoundException('Wine not found');
-        }
-
-        $content = json_decode($request->getContent(), true);
-        $wineDto = new WineDto();
-
-        $wineDto->name = $wine->getName();
-        $wineDto->year = $wine->getYear();
-
-        $form = $this->createForm(WineFormType::class, $wineDto);
-        $form->submit($content, false);
-
-        if(!$form->isSubmitted()) {
-            return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-        }
-        if ($form->isValid()) {
-            
-            if ($wineDto->name !== null) {
-                $wine->setName($wineDto->name);
-            }
-            if ($wineDto->year !== null) {
-                $wine->setYear($wineDto->year);
-            }
-
-            $em->persist($wine);
-            $em->flush();
-            return $wine;
-        }
-        return $form;
+        return $this->wineService->updateWine($request, $id);
     }
 
 
@@ -125,21 +86,9 @@ class WineController extends AbstractFOSRestController
      * @Rest\Patch(path="/wines/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"wine"}, serializerEnableMaxDepthChecks=true)
      */
-    public function patchWine(int $id, Request $request, EntityManagerInterface $em, WineRepository $wineRepository)
+    public function patchWine(int $id, Request $request)
    {
-
-        $wine = $wineRepository->find($id);
-        if (!$wine) {
-            throw $this->createNotFoundException('Wine not found');
-        }
-
-        $content = json_decode($request->getContent(), true);
-        $wine->patch($content);
-
-        $em->persist($wine);
-        $em->flush();
-        return $wine;
-        
+        return $this->wineService->patchWine($request, $id); 
     }
 
 
@@ -147,14 +96,9 @@ class WineController extends AbstractFOSRestController
      * @Rest\Delete(path="/wines/{id}" , requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"wine"}, serializerEnableMaxDepthChecks=true)
      */
-    public function deleteWine(EntityManagerInterface $em, WineRepository $wineRepository, int $id)
+    public function deleteWine(int $id)
     {
-        $wine = $wineRepository->find($id);
-        if ($wine) {
-            $em->remove($wine);
-            $em->flush();
-        }
-        return $wine;
+        return $this->wineService->deleteWine($id);
     }
 
 

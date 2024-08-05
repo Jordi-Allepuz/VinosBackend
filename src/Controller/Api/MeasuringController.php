@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use App\Entity\Measuring;
 use App\Form\Model\MeasuringDto;
 use App\Form\Type\MeasuringFormType;
+use App\Service\MeasuringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\SensorRepository;
@@ -24,13 +25,23 @@ use OpenApi\Attributes as OA;
 class MeasuringController extends AbstractFOSRestController
 {
 
+
+    private $measuringService;
+
+    public function __construct(MeasuringService $measuringService)
+    {
+        $this->measuringService = $measuringService;
+    }
+
+
     /**
     * @Rest\Get(path="/measurings")
     * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
     */
-    public function getMeasurings(MeasuringRepository $measuringRepository)
+    public function getMeasurings()
     {
-        return $measuringRepository->findAll();
+        $measurings = $this->measuringService->getAllMeasurings();
+        return $this->json($measurings, Response::HTTP_OK, [], ['groups' => ['measuring']]);
     }
 
 
@@ -38,9 +49,15 @@ class MeasuringController extends AbstractFOSRestController
     * @Rest\Get(path="/measurings/{id}", requirements={"id"="\d+"}) 
     * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
     */
-    public function getMeasuringById(MeasuringRepository $measuringRepository, int $id)
+    public function getMeasuringById(int $id)
     {
-        return $measuringRepository->find($id);
+        $measuring = $this->measuringService->getMeasuringById($id);
+
+        if (!$measuring) {
+            throw $this->createNotFoundException('Measuring not found');
+        }
+    
+        return $this->json($measuring, Response::HTTP_OK, [], ['groups' => ['measuring']]);
     }
 
 
@@ -48,43 +65,9 @@ class MeasuringController extends AbstractFOSRestController
     * @Rest\Post(path="/measurings")
     * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
     */
-    public function postmeasuring(EntityManagerInterface $em, Request $request, SensorRepository $sensorRepository, WineRepository $wineRepository)
+    public function postmeasuring(Request $request)
     {
-        $measuringDto = new MeasuringDto();
-        $form = $this->createForm(MeasuringFormType::class, $measuringDto);
-        $form->handleRequest($request);
-        
-        if(!$form->isSubmitted()) {
-            return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-        }
-        if ($form->isValid()) {
-            $measuring = new Measuring();
-
-            $sensor = $sensorRepository->find($measuringDto->idSensor);
-            if (!$sensor) {
-                return new Response('Sensor not found', Response::HTTP_NOT_FOUND);
-            }
-            $measuring->setIdSensor($sensor);
-
-            
-            $wine = $wineRepository->find($measuringDto->idWine);
-            if (!$wine) {
-                return new Response('Wine not found', Response::HTTP_NOT_FOUND);
-            }
-            $measuring->setIdWine($wine);
-
-
-            $measuring->setTemperature($measuringDto->temperature);
-            $measuring->setPh($measuringDto->ph);
-            $measuring->setColour($measuringDto->colour);
-            $measuring->setAlcoholContent($measuringDto->alcoholContent);
-            $measuring->setYear($measuringDto->year);
-
-            $em->persist($measuring);
-            $em->flush();
-            return $measuring;
-        }
-        return $form;
+        return $this->measuringService->createMeasuring($request);
     }
 
 
@@ -92,62 +75,9 @@ class MeasuringController extends AbstractFOSRestController
      * @Rest\Put(path="/measurings/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
      */
-    public function putMeasuring(EntityManagerInterface $em, MeasuringRepository $measuringRepository,WineRepository $wineRepository, SensorRepository $sensorRepository  ,Request $request, int $id)
+    public function putMeasuring(Request $request, int $id)
    {
-    $measuring = $measuringRepository->find($id);
-    if (!$measuring) {
-        throw $this->createNotFoundException('Measuring not found');
-    }
-
-    $content = json_decode($request->getContent(), true);
-    $measuringDto = new MeasuringDto();
-
-    $measuringDto = new MeasuringDto();
-    $measuringDto->idSensor = $measuring->getIdSensor();
-    $measuringDto->idWine = $measuring->getYear();
-    $measuringDto->temperature = $measuring->getTemperature();
-    $measuringDto->ph = $measuring->getPh();
-    $measuringDto->colour = $measuring->getColour();
-    $measuringDto->alcoholContent = $measuring->getAlcoholContent();
-    $measuringDto->year = $measuring->getYear();
-    
-    $form = $this->createForm(MeasuringFormType::class, $measuringDto);
-    $form->submit($request->request->all(), false);
-
-    if(!$form->isSubmitted()) {
-        return new Response('Bad request', Response::HTTP_BAD_REQUEST);
-    }
-    if ($form->isValid()) {
-        if ($measuringDto->idWine !== null) {
-            $wine = $wineRepository->find($measuringDto->idWine);
-            if (!$wine) {
-                throw $this->createNotFoundException('Wine not found');
-            }
-            $measuring->setIdWine($wine);
-        }
-        if ($measuringDto->idSensor !== null) {
-            $measuring->setIdSensor($measuringDto->idSensor);
-        }
-        if ($measuringDto->temperature !== null) {
-            $measuring->setTemperature($measuringDto->temperature);
-        }
-        if ($measuringDto->ph !== null) {
-            $measuring->setPh($measuringDto->ph);
-        }
-        if ($measuringDto->colour !== null) {
-            $measuring->setColour($measuringDto->colour);
-        }
-        if ($measuringDto->alcoholContent !== null) {
-            $measuring->setAlcoholContent($measuringDto->alcoholContent);
-        }
-        if ($measuringDto->year !== null) {
-            $measuring->setYear($measuringDto->year);
-        }
-        $em->persist($measuring);
-        $em->flush();
-        return $measuring;
-    }
-    return $form;
+        return $this->measuringService->updateMeasuring($request, $id);
     }
 
 
@@ -155,20 +85,9 @@ class MeasuringController extends AbstractFOSRestController
      * @Rest\Patch(path="/measurings/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
      */
-    public function patchMeasuring(EntityManagerInterface $em, MeasuringRepository $measuringRepository, Request $request, int $id)
+    public function patchMeasuring(Request $request, int $id)
     {
-        $measuring = $measuringRepository->find($id);
-        if (!$measuring) {
-            throw $this->createNotFoundException('Measuring not found');
-        }
-
-        $content = json_decode($request->getContent(), true);
-        $measuring->patch($content);
-
-        $em->persist($measuring);
-        $em->flush();
-        return $measuring;
-
+        return $this->measuringService->patchMeasuring($request, $id);
     }
 
 
@@ -177,14 +96,9 @@ class MeasuringController extends AbstractFOSRestController
      * @Rest\Delete(path="/measurings/{id}" , requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"measuring"}, serializerEnableMaxDepthChecks=true)
      */
-    public function deleteMeasuring(EntityManagerInterface $em, MeasuringRepository $measuringRepository, int $id)
+    public function deleteMeasuring(int $id)
     {
-        $measuring = $measuringRepository->find($id);
-        if ($measuring) {
-            $em->remove($measuring);
-            $em->flush();
-        }
-        return $measuring;
+        return $this->measuringService->deleteMeasuring($id);
     }
 
 
